@@ -599,7 +599,7 @@ function startGame(view4) {
 const view = new _canvasView.CanvasView('#playField');
 view.initStartButton(startGame);
 
-},{"./view/CanvasView":"5noQJ","./sprites/Ball":"17CCB","./sprites/Paddle":"lwmcw","./images/paddle.png":"79ore","./images/ball.png":"5LtMd","./setup":"1ctuX","./helpers":"adjmJ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./Collision":"fOL5u"}],"5noQJ":[function(require,module,exports) {
+},{"./view/CanvasView":"5noQJ","./sprites/Ball":"17CCB","./sprites/Paddle":"lwmcw","./Collision":"fOL5u","./images/paddle.png":"79ore","./images/ball.png":"5LtMd","./setup":"1ctuX","./helpers":"adjmJ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5noQJ":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "CanvasView", ()=>CanvasView
@@ -764,6 +764,40 @@ class Paddle {
     movePaddle() {
         if (this.moveLeft) this.pos.x -= this.speed;
         if (this.moveRight) this.pos.x += this.speed;
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"fOL5u":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Collision", ()=>Collision
+);
+class Collision {
+    isCollidingBrick(ball, brick) {
+        if (ball.pos.x < brick.pos.x + brick.width && ball.pos.x + ball.width > brick.pos.x && ball.pos.y < brick.pos.y + brick.height && ball.pos.y + ball.height > brick.pos.y) return true;
+        return false;
+    }
+    // Check ball collision with bricks
+    isCollidingBricks(ball, bricks) {
+        let colliding = false;
+        bricks.forEach((brick, i)=>{
+            if (this.isCollidingBrick(ball, brick)) {
+                ball.changeYDirection();
+                if (brick.energy === 1) bricks.splice(i, 1);
+                else brick.energy -= 1;
+                colliding = true;
+            }
+        });
+        return colliding;
+    }
+    checkBallCollision(ball, paddle, view) {
+        //1. check Ball collision with paddle
+        if (ball.pos.x + ball.width > paddle.pos.x && ball.pos.x < paddle.pos.x + paddle.width && ball.pos.y + ball.height === paddle.pos.y) ball.changeYDirection();
+        //2. check Ball collision with walls
+        // Ball movement X constraints
+        if (ball.pos.x > view.canvas.width - ball.width || ball.pos.x < 0) ball.changeXDirections();
+        // Ball movement Y constraints
+        if (ball.pos.y < 0) ball.changeYDirection();
     }
 }
 
@@ -1024,40 +1058,6 @@ class Brick {
     // Setter
     set energy(energy) {
         this.brickEnergy = energy;
-    }
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"fOL5u":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "Collision", ()=>Collision
-);
-class Collision {
-    isCollidingBrick(ball, brick) {
-        if (ball.pos.x < brick.pos.x + brick.width && ball.pos.x + ball.width > brick.pos.x && ball.pos.y < brick.pos.y + brick.height && ball.pos.y + ball.height > brick.pos.y) return true;
-        return false;
-    }
-    // Check ball collision with bricks
-    isCollidingBricks(ball, bricks) {
-        let colliding = false;
-        bricks.forEach((brick, i)=>{
-            if (this.isCollidingBrick(ball, brick)) {
-                ball.changeYDirection();
-                if (brick.energy === 1) bricks.splice(i, 1);
-                else brick.energy -= 1;
-                colliding = true;
-            }
-        });
-        return colliding;
-    }
-    checkBallCollision(ball, paddle, view) {
-        //1. check Ball collision with paddle
-        if (ball.pos.x + ball.width > paddle.pos.x && ball.pos.x < paddle.pos.x + paddle.width && ball.pos.y + ball.height === paddle.pos.y) ball.changeYDirection();
-        //2. check Ball collision with walls
-        // Ball movement X constraints
-        if (ball.pos.x > view.canvas.width - ball.width || ball.pos.x < 0) ball.changeXDirections();
-        // Ball movement Y constraints
-        if (ball.pos.y < 0) ball.changeYDirection();
     }
 }
 
